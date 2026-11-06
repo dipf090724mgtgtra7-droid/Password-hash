@@ -8,7 +8,7 @@
 <body>
 <div class="container">
     <!-- imagen-->
-    <img src="https://picsum.photos" alt="Icono de Login" class="banner-img">
+    <img src="https://img.icons8.com/?size=100&id=0o0ElnUCpvEN&format=png&color=12B886" alt="Icono de Login" class="banner-img">
     <h2>Inicio de Sesión</h2>
 
     <form action="login.php" method="POST">

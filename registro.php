@@ -23,18 +23,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mensaje = "La contraseña y su confirmación no coinciden.";
         $clase_alerta = "alert-danger";
     } else {
-        
-        // Encriptamos la contraseña
+        // Encriptamos la contraseña usando password_hash
         $password_encriptada = password_hash($password, PASSWORD_DEFAULT);
 
-        // Guardamos el usuario con su contraseña 
+        // Guardamos el usuario protegido en el arreglo de la sesión
         $_SESSION['usuario_registrado'] = [
             'nombre' => $nombre_completo,
             'login' => $username,
-            'hash' => $password_encriptada // Guardamos el hash, no el texto plano
+            'hash' => $password_encriptada
         ];
 
-        $mensaje = "Usuario registrado correctamente";
+        $mensaje = "Usuario registrado correctamente con contraseña encriptada";
         $clase_alerta = "alert-success";
     }
 }
@@ -44,7 +43,122 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Registro de Empleados</title>
-    <link rel="stylesheet" href="estilos.css">
+    <style>
+        /* Estilos Integrados */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #faf2f9;
+            color: #333333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f7b4e3;
+            padding: 40px 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(221, 102, 221, 0.61);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+        .banner-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border-radius: 50%;
+            border: 3px solid #e2b3f5;
+            padding: 3px;
+            background-color: #fff;
+        }
+        h2 {
+            color: #965196;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #555555;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #cccccc;
+            border-radius: 6px;
+            font-size: 15px;
+            background-color: #fafafa;
+            transition: all 0.3s ease;
+        }
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #00796b;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(0, 121, 107, 0.15);
+            outline: none;
+        }
+        .btn {
+            background-color: #00796b;
+            color: #ffffff;
+            padding: 14px;
+            border: none;
+            border-radius: 6px;
+            width: 100%;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #004d40;
+        }
+        .alert {
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: left;
+        }
+        .alert-success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+        .alert-danger {
+            background-color: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+        .switch-link {
+            margin-top: 25px;
+            display: inline-block;
+            color: #00796b;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+        }
+        .switch-link:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
 <div class="container">
