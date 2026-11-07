@@ -1,4 +1,6 @@
 <?php
+//buscar usuarios y validar acceso
+
 // Iniciar sesión para acceder al arreglo de usuarios registrados
 session_start();
 
