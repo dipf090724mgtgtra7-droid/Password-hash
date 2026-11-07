@@ -1,4 +1,6 @@
 <?php
+// Documentación con comentarios
+
 // Iniciar sesión 
 session_start();
 
@@ -53,6 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
