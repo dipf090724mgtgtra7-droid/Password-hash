@@ -1,40 +1,55 @@
 <?php
-// Iniciamos sesión para poder guardar los datos
+// Iniciar sesión 
 session_start();
 
-$mensaje = "";
-$clase_alerta = "";
+// Inicializar el arreglo
+if (!isset($_SESSION['usuarios'])) {
+    $_SESSION['usuarios'] = [];
+}
 
-// Comprobamos si el usuario dio clic en el botón de registrar
+$mensaje = "";
+$tipo_mensaje = "";
+
+// Comprobar si se envió el formulario
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nombre_completo = trim($_POST['nombre_completo']);
+    // Recuperar y limpiar campos
+    $nombre = trim($_POST['nombre']);
     $username = trim($_POST['username']);
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
 
-    // Validaciones
-    if (empty($nombre_completo) || empty($username) || empty($password) || empty($confirm_password)) {
+    // Validar que todos los campos sean obligatorios
+    if (empty($nombre) || empty($username) || empty($password) || empty($confirm_password)) {
         $mensaje = "Todos los campos son obligatorios.";
-        $clase_alerta = "alert-danger";
-    } elseif (strlen($password) < 6) {
+        $tipo_mensaje = "error";
+    } 
+    // Validar longitud 
+    elseif (strlen($password) < 6) {
         $mensaje = "La contraseña debe tener al menos 6 caracteres.";
-        $clase_alerta = "alert-danger";
-    } elseif ($password !== $confirm_password) {
-        $mensaje = "La contraseña y su confirmación no coinciden.";
-        $clase_alerta = "alert-danger";
-    } else {
-        // Encriptamos la contraseña usando password_hash
-        $password_encriptada = password_hash($password, PASSWORD_DEFAULT);
+        $tipo_mensaje = "error";
+    } 
+    // Validar que ambas contraseñas coincidan
+    elseif ($password !== $confirm_password) {
+        $mensaje = "Las contraseñas no coinciden.";
+        $tipo_mensaje = "error";
+    } 
+    // Validar si el usuario ya existe 
+    elseif (isset($_SESSION['usuarios'][$username])) {
+        $mensaje = "El nombre de usuario ya está registrado.";
+        $tipo_mensaje = "error";
+    } 
+    else {
+        // Encriptar la contraseña usando password_hash
+        $password_segura = password_hash($password, PASSWORD_DEFAULT);
 
-        // Guardamos el usuario protegido en el arreglo de la sesión
-        $_SESSION['usuario_registrado'] = [
-            'nombre' => $nombre_completo,
-            'login' => $username,
-            'hash' => $password_encriptada
+        // Guardar el usuario
+        $_SESSION['usuarios'][$username] = [
+            'nombre' => $nombre,
+            'hash' => $password_segura
         ];
 
-        $mensaje = "Usuario registrado correctamente con contraseña encriptada";
-        $clase_alerta = "alert-success";
+        $mensaje = "¡Usuario registrado correctamente!";
+        $tipo_mensaje = "success";
     }
 }
 ?>
@@ -42,155 +57,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Registro de Empleados</title>
-    <style>
-        /* Estilos Integrados */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background-color: #faf2f9;
-            color: #333333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            background-color: #f7b4e3;
-            padding: 40px 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(221, 102, 221, 0.61);
-            width: 100%;
-            max-width: 420px;
-            text-align: center;
-        }
-        .banner-img {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            margin-bottom: 20px;
-            border-radius: 50%;
-            border: 3px solid #e2b3f5;
-            padding: 3px;
-            background-color: #fff;
-        }
-        h2 {
-            color: #965196;
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 25px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #555555;
-        }
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid #cccccc;
-            border-radius: 6px;
-            font-size: 15px;
-            background-color: #fafafa;
-            transition: all 0.3s ease;
-        }
-        input[type="text"]:focus,
-        input[type="password"]:focus {
-            border-color: #00796b;
-            background-color: #ffffff;
-            box-shadow: 0 0 0 3px rgba(0, 121, 107, 0.15);
-            outline: none;
-        }
-        .btn {
-            background-color: #00796b;
-            color: #ffffff;
-            padding: 14px;
-            border: none;
-            border-radius: 6px;
-            width: 100%;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            margin-top: 10px;
-            transition: background-color 0.3s ease;
-        }
-        .btn:hover {
-            background-color: #004d40;
-        }
-        .alert {
-            padding: 12px;
-            margin-bottom: 20px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            text-align: left;
-        }
-        .alert-success {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            border-left: 4px solid #4caf50;
-        }
-        .alert-danger {
-            background-color: #ffebee;
-            color: #c62828;
-            border-left: 4px solid #f44336;
-        }
-        .switch-link {
-            margin-top: 25px;
-            display: inline-block;
-            color: #00796b;
-            font-size: 14px;
-            font-weight: 500;
-            text-decoration: none;
-        }
-        .switch-link:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <title>Registro de Usuarios</title>
+    <!-- Vinculación del archivo CSS externo -->
+    <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
-<div class="container">
-    <img src="https://picsum.photos" alt="Icono de Registro" class="banner-img">
-    <h2>Registro de Personal</h2>
-    
-    <?php if (!empty($mensaje)): ?>
-        <div class="alert <?php echo $clase_alerta; ?>">
-            <?php echo $mensaje; ?>
-        </div>
-    <?php endif; ?>
+    <div class="container">
+        <!-- Imagen-->
+        <img src="registro.png" alt="Registro Icono">
+        
+        <h2>Registro de Empleados</h2>
 
-    <form action="registro.php" method="POST">
-        <div class="form-group">
-            <label>Nombre Completo:</label>
-            <input type="text" name="nombre_completo" required>
-        </div>
-        <div class="form-group">
-            <label>Nombre de Usuario (Login):</label>
-            <input type="text" name="username" required>
-        </div>
-        <div class="form-group">
-            <label>Contraseña:</label>
-            <input type="password" name="password" required>
-        </div>
-        <div class="form-group">
-            <label>Confirmar Contraseña:</label>
-            <input type="password" name="confirm_password" required>
-        </div>
-        <button type="submit" class="btn">Registrar Usuario</button>
-    </form>
-    <a href="login.php" class="switch-link">¿Ya tienes cuenta? Inicia sesión aquí</a>
-</div>
+        <!-- Mostrar mensajes de éxito o error si existen -->
+        <?php if (!empty($mensaje)): ?>
+            <div class="message <?php echo $tipo_mensaje; ?>">
+                <?php echo $mensaje; ?>
+            </div>
+        <?php endif; ?>
+
+        <form action="registro.php" method="POST">
+            <div class="form-group">
+                <label>Nombre Completo:</label>
+                <input type="text" name="nombre" required>
+            </div>
+            <div class="form-group">
+                <label>Nombre de Usuario (Login):</label>
+                <input type="text" name="username" required>
+            </div>
+            <div class="form-group">
+                <label>Contraseña:</label>
+                <input type="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label>Confirmar Contraseña:</label>
+                <input type="password" name="confirm_password" required>
+            </div>
+            <button type="submit">Registrar Usuario</button>
+        </form>
+        <p><a href="login.php">¿Ya tienes cuenta? Inicia sesión aquí</a></p>
+    </div>
 </body>
 </html>
+
+
