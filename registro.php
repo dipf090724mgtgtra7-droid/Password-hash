@@ -65,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="container">
         <!-- Imagen-->
         <img src="registro.png" alt="Registro Icono">
-        
+        <!-- cambio de imagen-->
         <h2>Registro de Empleados</h2>
 
         <!-- Mostrar mensajes de éxito o error si existen -->
